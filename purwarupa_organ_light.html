@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purwarupa Interaktif Sistem Organ</title>
+    <!-- Menggunakan Tailwind CSS untuk tampilan modern -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse-anim { animation: pulse 2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-white text-slate-800 min-h-screen font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-50 border-b border-slate-200 p-6 text-center shadow-sm">
+        <h1 class="text-3xl font-bold text-teal-600">Simulasi & Purwarupa Sistem Organ</h1>
+        <p class="text-slate-600 mt-2">Belajar Anatomi lewat Perumpamaan Interaktif Sederhana</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto p-4 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Panel Kiri: Pilih Sistem -->
+        <section class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm h-fit">
+            <h2 class="text-xl font-semibold mb-4 text-teal-700">Pilih Sistem Tubuh</h2>
+            <div class="space-y-3">
+                <button onclick="switchSystem('pernapasan')" id="btn-pernapasan" class="w-full text-left p-4 rounded-lg bg-teal-600 text-white font-medium transition hover:bg-teal-500 shadow">
+                    𫛤 Sistem Pernapasan
+                </button>
+                <button onclick="switchSystem('pencernaan')" id="btn-pencernaan" class="w-full text-left p-4 rounded-lg bg-slate-200 text-slate-700 font-medium transition hover:bg-slate-300">
+                    🍔 Sistem Pencernaan
+                </button>
+                <button onclick="switchSystem('darah')" id="btn-darah" class="w-full text-left p-4 rounded-lg bg-slate-200 text-slate-700 font-medium transition hover:bg-slate-300">
+                    ❤️ Peredaran Darah
+                </button>
+            </div>
+            <div class="mt-6 p-4 bg-slate-100 rounded-lg text-sm text-slate-600">
+                <strong class="text-slate-800">Petunjuk:</strong> Klik salah satu sistem tubuh, lalu pilih organ di dalam panel simulasi untuk melihat detail fungsi dan faktanya.
+            </div>
+        </section>
+
+        <!-- Panel Tengah & Kanan: Visual Simulasi & Informasi Dinamis -->
+        <section class="md:col-span-2 space-y-6">
+            
+            <!-- Kotak Simulasi Cara Kerja -->
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="system-title" class="text-2xl font-bold text-teal-600">Sistem Pernapasan</h2>
+                    <span id="system-analogy" class="px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full text-xs font-semibold">Analogi: Pompa Balon Gas</span>
+                </div>
+                
+                <!-- Area Simulasi Interaktif Dinamis -->
+                <div class="bg-white border border-slate-200 rounded-lg p-6 flex flex-col items-center justify-center min-h-[220px] shadow-inner">
+                    <div id="simulation-viewport" class="text-center space-y-4">
+                        <!-- Default state Pernapasan -->
+                        <div class="flex justify-center space-x-6 text-5xl">
+                            <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('hidung')">👃</span>
+                            <span class="text-slate-400 self-center">➔</span>
+                            <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('tenggorokan')">🥢</span>
+                            <span class="text-slate-400 self-center">➔</span>
+                            <span id="lung-emoji" class="cursor-pointer transition pulse-anim block" onclick="selectOrgan('paru')">🫁</span>
+                        </div>
+                        <p class="text-sm text-slate-500 mt-2">Klik ikon organ di atas untuk menjalankan simulasi aliran</p>
+                    </div>
+                    
+                    <!-- Tombol Aksi Simulasi -->
+                    <div class="mt-6 flex gap-3">
+                        <button id="action-btn" onclick="runSim()" class="bg-teal-600 text-white font-bold px-5 py-2 rounded-lg hover:bg-teal-500 transition text-sm shadow">
+                            Mulai Jalankan Aliran (Simulasi)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kotak Detail Informasi Organ -->
+            <div id="info-box" class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm min-h-[200px]">
+                <h3 id="organ-name" class="text-xl font-bold text-amber-600 mb-2">Pilih Organ</h3>
+                <p id="organ-analogy" class="text-sm text-slate-500 italic mb-4">Perumpamaan: -</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <h4 class="text-xs uppercase font-bold text-slate-400 tracking-wider mb-1">Fungsi Utama</h4>
+                        <p id="organ-function" class="text-sm text-slate-700">Silakan klik salah satu organ di dalam sistem untuk memuat data fungsi biologisnya.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-slate-200">
+                        <h4 class="text-xs uppercase font-bold text-slate-400 tracking-wider mb-1">Fakta Unik</h4>
+                        <p id="organ-fact" class="text-sm text-amber-800">Tahukah kamu? Setiap organ punya kemampuan adaptasi tersembunyi yang mirip infrastruktur mesin teknologi!</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- JavaScript Aplikasi -->
+    <script>
+        // Database Data Organ dan Perumpamaannya
+        const db = {
+            pernapasan: {
+                title: "Sistem Pernapasan",
+                analogy: "Analogi: Pabrik Penyaring Udara & Pompa Balon",
+                color: "teal",
+                organs: {
+                    hidung: {
+                        name: "Hidung (Gerbang Udara)",
+                        analogy: "Penyaring Udara Utama (AC & Filter)",
+                        func: "Menyaring partikel debu halus dari luar, mengatur kelembapan, serta menyesuaikan suhu udara sebelum masuk ke dalam tubuh.",
+                        fact: "Lendir di hidung menghasilkan sekitar 1 liter cairan setiap hari untuk menangkap kotoran luar agar tidak masuk ke paru-paru."
+                    },
+                    tenggorokan: {
+                        name: "Tenggorokan / Trakea (Pipa Distribusi)",
+                        analogy: "Pipa Penyalur Gas Utama",
+                        func: "Menjadi saluran utama tempat lewatnya udara murni sekaligus memiliki rambut getar (silia) untuk menyapu sisa kotoran keluar.",
+                        fact: "Trakea dilindungi oleh cincin tulang rawan berbentuk huruf 'C' yang fleksibel namun sangat kokoh agar saluran tidak kempis."
+                    },
+                    paru: {
+                        name: "Paru-paru & Alveolus (Balon Tukar Gas)",
+                        analogy: "Tangki Penukaran Gas Oksigen & CO2",
+                        func: "Tempat pertukaran vital di mana oksigen dari udara diserap ke darah, dan karbondioksida dibuang keluar dari tubuh.",
+                        fact: "Jika semua kantung udara kecil (alveolus) di paru-parumu dibentangkan rata, luasnya bisa menutupi lapangan tenis!"
+                    }
+                },
+                view: `
+                    <div class="flex justify-center space-x-6 text-5xl">
+                        <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('hidung')">👃</span>
+                        <span class="text-slate-400 self-center">➔</span>
+                        <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('tenggorokan')">🥢</span>
+                        <span class="text-slate-400 self-center">➔</span>
+                        <span id="lung-emoji" class="cursor-pointer transition pulse-anim block" onclick="selectOrgan('paru')">🫁</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-2">Klik ikon organ di atas atau jalankan tombol simulasi</p>
+                `
+            },
+            pencernaan: {
+                title: "Sistem Pencernaan",
+                analogy: "Analogi: Jalur Pabrik Penghancur & Pengolah Makanan",
+                color: "amber",
+                organs: {
+                    mulut: {
+                        name: "Mulut (Mesin Penggiling)",
+                        analogy: "Mesin Penghancur Tahap Awal",
+                        func: "Memotong makanan secara mekanik dengan gigi dan melunakkannya secara kimiawi menggunakan enzim air liur.",
+                        fact: "Enzim amilase di air liur langsung mengubah zat tepung menjadi gula bahkan sebelum makanan sampai ke lambungmu."
+                    },
+                    lambung: {
+                        name: "Lambung (Tangki Asam)",
+                        analogy: "Reaktor Kimia Pelarut Bahan",
+                        func: "Mengaduk makanan menjadi bubur pekat menggunakan otot dinding lambung dan melarutkannya dengan asam lambung (HCl) yang sangat kuat.",
+                        fact: "Asam lambung sangat korosif dan kuat hingga mampu melarutkan logam paku rautan baja jika direndam di dalamnya!"
+                    },
+                    usus: {
+                        name: "Usus Halus & Besar (Jalur Ekstraksi)",
+                        analogy: "Pipa Penyerap Nutrisi & Pengering Sisa",
+                        func: "Menyerap sari makanan bergizi ke dalam pembuluh darah dan menyerap air dari sisa makanan sebelum dikeluarkan.",
+                        fact: "Panjang total usus halus manusia dewasa berkisar antara 6 meter, mengkerut rapi di dalam perut berkat lipatan membran internal."
+                    }
+                },
+                view: `
+                    <div class="flex justify-center space-x-6 text-5xl">
+                        <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('mulut')">👄</span>
+                        <span class="text-slate-400 self-center">➔</span>
+                        <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('lambung')">🧪</span>
+                        <span class="text-slate-400 self-center">➔</span>
+                        <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('usus')">🌀</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-2">Klik ikon organ untuk melihat detail mekanis mesin pencernaan</p>
+                `
+            },
+            darah: {
+                title: "Sistem Peredaran Darah",
+                analogy: "Analogi: Sistem Logistik Perkotaan",
+                color: "rose",
+                organs: {
+                    jantung: {
+                        name: "Jantung (Pusat Pompa)",
+                        analogy: "Stasiun Pompa Tekanan Tinggi Kota",
+                        func: "Memompa darah kaya oksigen ke seluruh sel tubuh tanpa henti, menjaga tekanan sirkulasi bahan bakar sel.",
+                        fact: "Jantung berdetak sekitar 100.000 kali sehari dan memompa ribuan liter darah setiap jam tanpa pernah beristirahat sedetik pun."
+                    },
+                    pembuluh: {
+                        name: "Pembuluh Darah (Jalan Tol)",
+                        analogy: "Jaringan Pipa Distribusi & Jalan Tol Logistik",
+                        func: "Menjadi jalur transportasi bagi sel darah merah untuk membawa nutrisi, oksigen, dan mengangkut sampah metabolisme sel.",
+                        fact: "Jika seluruh pembuluh darah (arteri, vena, kapiler) satu manusia disambungkan, panjangnya bisa mengelilingi bumi sebanyak 2 kali!"
+                    }
+                },
+                view: `
+                    <div class="flex justify-center space-x-8 text-5xl">
+                        <span id="heart-emoji" class="cursor-pointer hover:scale-125 transition block pulse-anim" onclick="selectOrgan('jantung')">❤️</span>
+                        <span class="text-slate-400 self-center">⇄</span>
+                        <span class="cursor-pointer hover:scale-125 transition block" onclick="selectOrgan('pembuluh')">🛣️</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-2">Klik organ logistik darah di atas untuk memantau sirkulasi</p>
+                `
+            }
+        };
+
+        let currentSystem = 'pernapasan';
+
+        function switchSystem(sysKey) {
+            currentSystem = sysKey;
+            const data = db[sysKey];
+            
+            // Perbarui Judul & Tampilan
+            document.getElementById('system-title').innerText = data.title;
+            document.getElementById('system-analogy').innerText = data.analogy;
+            document.getElementById('simulation-viewport').innerHTML = data.view;
+            
+            // Ubah Warna Aksen Judul
+            const titleEl = document.getElementById('system-title');
+            titleEl.className = `text-2xl font-bold text-${data.color}-600`;
+            
+            // Setel Ulang Info Box ke default
+            document.getElementById('organ-name').innerText = "Pilih Organ";
+            document.getElementById('organ-analogy').innerText = "Perumpamaan: -";
+            document.getElementById('organ-function').innerText = "Silakan klik salah satu organ di dalam sistem untuk memuat data fungsi biologisnya.";
+            document.getElementById('organ-fact').innerText = "Tahukah kamu? Setiap organ punya kemampuan adaptasi tersembunyi yang mirip infrastruktur mesin teknologi!";
+
+            // Perbarui Gaya Tombol Menu Aktif
+            ['pernapasan', 'pencernaan', 'darah'].forEach(k => {
+                const btn = document.getElementById(`btn-${k}`);
+                if(k === sysKey) {
+                    btn.className = `w-full text-left p-4 rounded-lg bg-${data.color}-600 text-white font-medium transition shadow`;
+                } else {
+                    btn.className = "w-full text-left p-4 rounded-lg bg-slate-200 text-slate-700 font-medium transition hover:bg-slate-300";
+                }
+            });
+            
+            // Perbarui tombol aksi
+            const actBtn = document.getElementById('action-btn');
+            actBtn.className = `bg-${data.color}-600 text-white font-bold px-5 py-2 rounded-lg hover:bg-${data.color}-500 transition text-sm shadow`;
+            
+            // Perbarui analogi badge color
+            const badge = document.getElementById('system-analogy');
+            badge.className = `px-3 py-1 bg-${data.color}-50 text-${data.color}-700 border border-${data.color}-200 rounded-full text-xs font-semibold`;
+        }
+
+        function selectOrgan(organKey) {
+            const data = db[currentSystem];
+            const organData = data.organs[organKey];
+            if (!organData) return;
+
+            const nameEl = document.getElementById('organ-name');
+            nameEl.innerText = organData.name;
+            nameEl.className = `text-xl font-bold text-${data.color}-600 mb-2`;
+            
+            document.getElementById('organ-analogy').innerText = "Perumpamaan: " + organData.analogy;
+            document.getElementById('organ-function').innerText = organData.func;
+            document.getElementById('organ-fact').innerText = organData.fact;
+            
+            const factEl = document.getElementById('organ-fact');
+            factEl.className = `text-sm text-${data.color}-800`;
+        }
+
+        // Simulasi Sederhana Aliran Berbasis Teks Animasi Sementara
+        function runSim() {
+            const viewport = document.getElementById('simulation-viewport');
+            const originalView = db[currentSystem].view;
+            
+            if (currentSystem === 'pernapasan') {
+                viewport.innerHTML = `<div class="text-teal-600 font-mono text-center space-y-2 animate-bounce">
+                    <p>💨 Udara Masuk -> Disaring Hidung...</p>
+                    <p>⬇️ Melewati Saluran Trakea...</p>
+                    <p>🎈 Paru-paru Mengembang & Oksigen Diserap!</p>
+                </div>`;
+            } else if (currentSystem === 'pencernaan') {
+                viewport.innerHTML = `<div class="text-amber-600 font-mono text-center space-y-2">
+                    <p>🍕 Makanan Dikunyah & Dihancurkan di Mulut...</p>
+                    <p>🔄 Meluncur ke Lambung -> Diaduk Asam Reaktor Kimia...</p>
+                    <p>🧪 Masuk Usus Halus -> Sari Nutrisi Diekstrak ke Darah!</p>
+                </div>`;
+            } else if (currentSystem === 'darah') {
+                viewport.innerHTML = `<div class="text-rose-600 font-mono text-center space-y-2">
+                    <p>💓 JALUR LOGISTIK AKTIF: Jantung memompa darah...</p>
+                    <p>🚀 Darah melesat lewat Jalan Tol Pembuluh Darah...</p>
+                    <p>📦 Nutrisi & Oksigen Sukses Diantar ke Seluruh Sel Tubuh!</p>
+                </div>`;
+            }
+
+            // Kembalikan ke tampilan interaktif semula setelah 4 detik
+            setTimeout(() => {
+                viewport.innerHTML = originalView;
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
